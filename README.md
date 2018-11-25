@@ -48,6 +48,20 @@ $ python3 main.py --help
 + matplotlib (2.2.2)
 + scikit-learn (0.19.1)
 
+## Reference
+If you found the provided code useful, please cite our work.
+
+```
+@inproceedings{shim2018jointAFA,
+    author    = {Hajin Shim and Sung Ju Hwangand Eunho Yang and },
+    title     = {Joint Active Feature Acquisition and Classification with Variable-Size Set Encoding},
+    booktitle = {NIPS},
+    year      = {2018}
+              }
+```
+
+<br/>
+
 
 ## Contacts
 If you have any question, please contact Hajin Shim(shimazing@kaist.ac.kr).
