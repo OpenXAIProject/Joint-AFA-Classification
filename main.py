@@ -673,8 +673,10 @@ def main(args):
     r_cost = args.r_cost
 
     # TODO data load first, classifier defining and declare env
-    traindata, valdata, testdata = data_load(data_type=args.data_type,
-              random_seed=args.random_seed)
+    traindata, valdata, testdata, cost = data_load(data_type=args.data_type,
+              random_seed=args.random_seed, cost_from_file=args.cost_from_file)
+    if cost is not None:
+        r_cost = cost
     input_dim = traindata.n_features + 1
     clf_output_size = traindata.n_classes if traindata.n_classes > 2 else 1
     encoder = SetEncoder(
@@ -786,8 +788,10 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '--r_cost', help='cost weight(negative value)',
-        type=float, default=-0.05
+        default=-0.05, type=float
     )
+    parser.add_argument(
+        '--cost_from_file', help='whether the cost info is in data csv file or not', type=bool, default=False)
     parser.add_argument(
         '--random_seed', help='random seed',
         type=int, default=123

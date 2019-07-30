@@ -7,8 +7,14 @@ import numpy as np
 from sklearn import preprocessing
 
 
-def csv_load(filename):
-    df = pd.read_csv(filename)
+def csv_load(filename, cost_from_file):
+    # csv format
+    # 1st row : cost from 2nd col (align with column name in 2nd row) if
+    # cost_from_file if True. Else below description of 2nd row is for 1st row
+    # 2nd row : columns name starting with 'label' followed by features' name
+    # 3rd ~ rows : label and feature values
+    header = 1 if cost_from_file else 0
+    df = pd.read_csv(filename, header=header)
     labels = df['label'].values.astype(np.int)
     df = df.iloc[:, 1:] # assume 1st col is label
     exist = np.where(pd.isnull(df), 1, 0).astype(np.uint8)
@@ -21,7 +27,14 @@ def csv_load(filename):
     df = norm_to_zero_one(df)
     df = df.fillna(0)#method='backfill')
 
-    return df.values.astype(np.float32), exist, labels
+    if cost_from_file:
+        cost = pd.read_csv(filename, nrows=1)
+        cost = cost.values.reshape(-1)[1:]
+        assert len(cost) == df.shape[1]
+    else:
+        cost = None
+
+    return df.values.astype(np.float32), exist, labels, cost
 
 def gen_cube(n_features=20, data_points=20000, sigma=0.1, seed=123):
     assert n_features >= 10, 'cube data have >= 10 num of features'
@@ -67,9 +80,10 @@ def data_load(data_type='cube_20_0.3', # "cube_Nfeatures_sigma" or csv
               n_datapoints=20000, # ignored when data_type is csv
               csv_filename=None,
               action2features=None,
-              val_test_split=np.array([0.25, 0.25])):
+              val_test_split=np.array([0.25, 0.25]),
+              cost_from_file=False):
     if data_type == 'csv':
-        features, exist, labels = csv_load(csv_filename)
+        features, exist, labels, cost = csv_load(csv_filename, cost_from_file)
     else:
         data_type = data_type.split(sep='_')
         assert len(data_type) == 3 and data_type[0] == 'cube', "Undefined datatype"
@@ -79,10 +93,11 @@ def data_load(data_type='cube_20_0.3', # "cube_Nfeatures_sigma" or csv
                 sigma=sigma, seed=random_seed)
         exist = None
         action2features = None
+        cost = None
 
     return data_split_n_ready(features, exist, labels,
                             val_test_split=val_test_split,
-                            action2features=action2features)
+                            action2features=action2features), cost
 
 
 class DataTemp:
